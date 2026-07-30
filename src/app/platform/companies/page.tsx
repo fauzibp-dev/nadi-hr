@@ -1,13 +1,17 @@
+import Link from "next/link";
+
 import {
   PageHead,
   Card,
   CardHead,
   Badge,
 } from "@/components/ui";
+
 import {
   CreateCompanyForm,
   ApiHint,
 } from "@/components/admin-forms";
+
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +46,9 @@ type EmployeeRow = {
 function normalizePlan(
   value: PlanRow | PlanRow[] | null
 ): PlanRow | null {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
 
   if (Array.isArray(value)) {
     return value[0] ?? null;
@@ -65,10 +71,24 @@ function statusLabel(status: string) {
 
 function statusTone(
   status: string
-): "success" | "warning" | "danger" | "info" | "" {
-  if (status === "active") return "success";
-  if (status === "trial") return "info";
-  if (status === "past_due") return "warning";
+):
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "" {
+  if (status === "active") {
+    return "success";
+  }
+
+  if (status === "trial") {
+    return "info";
+  }
+
+  if (status === "past_due") {
+    return "warning";
+  }
+
   if (
     status === "suspended" ||
     status === "cancelled"
@@ -100,15 +120,15 @@ export default async function CompaniesPage() {
       .from("subscriptions")
       .select(
         `
-          company_id,
-          status,
-          trial_ends_at,
-          current_period_end,
-          plans (
-            code,
-            name,
-            employee_limit
-          )
+        company_id,
+        status,
+        trial_ends_at,
+        current_period_end,
+        plans (
+          code,
+          name,
+          employee_limit
+        )
         `
       ),
 
@@ -124,7 +144,8 @@ export default async function CompaniesPage() {
     employeeResult.error;
 
   const companies =
-    (companyResult.data ?? []) as CompanyRow[];
+    (companyResult.data ??
+      []) as CompanyRow[];
 
   const subscriptions =
     (subscriptionResult.data ??
@@ -134,10 +155,8 @@ export default async function CompaniesPage() {
     (employeeResult.data ??
       []) as EmployeeRow[];
 
-  const subscriptionByCompany = new Map<
-    string,
-    SubscriptionRow
-  >();
+  const subscriptionByCompany =
+    new Map<string, SubscriptionRow>();
 
   for (const subscription of subscriptions) {
     subscriptionByCompany.set(
@@ -146,10 +165,8 @@ export default async function CompaniesPage() {
     );
   }
 
-  const employeeCountByCompany = new Map<
-    string,
-    number
-  >();
+  const employeeCountByCompany =
+    new Map<string, number>();
 
   for (const employee of employees) {
     const current =
@@ -180,15 +197,15 @@ export default async function CompaniesPage() {
           {loadError ? (
             <div className="cardpad">
               <div className="callout warning">
-                Gagal mengambil data perusahaan:{" "}
+                Gagal mengambil data
+                perusahaan:{" "}
                 {loadError.message}
               </div>
             </div>
           ) : companies.length === 0 ? (
             <div className="cardpad">
               <div className="callout">
-                Belum ada workspace. Buat workspace
-                pertama melalui form di sebelah kanan.
+                Belum ada workspace.
               </div>
             </div>
           ) : (
@@ -200,69 +217,106 @@ export default async function CompaniesPage() {
                     <th>Plan</th>
                     <th>Employees</th>
                     <th>Status</th>
+                    <th></th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {companies.map((company) => {
-                    const subscription =
-                      subscriptionByCompany.get(
-                        company.id
+                  {companies.map(
+                    (company) => {
+                      const subscription =
+                        subscriptionByCompany.get(
+                          company.id
+                        );
+
+                      const plan =
+                        normalizePlan(
+                          subscription?.plans ??
+                            null
+                        );
+
+                      const employeeCount =
+                        employeeCountByCompany.get(
+                          company.id
+                        ) ?? 0;
+
+                      const employeeLimit =
+                        plan?.employee_limit ??
+                        null;
+
+                      const subscriptionStatus =
+                        subscription?.status ??
+                        company.status ??
+                        "unknown";
+
+                      return (
+                        <tr
+                          key={
+                            company.id
+                          }
+                        >
+                          <td>
+                            <Link
+                              href={`/platform/companies/${company.id}`}
+                              style={{
+                                textDecoration:
+                                  "none",
+                                color:
+                                  "inherit",
+                              }}
+                            >
+                              <strong>
+                                {
+                                  company.name
+                                }
+                              </strong>
+                            </Link>
+
+                            <div className="muted small">
+                              {
+                                company.slug
+                              }
+                            </div>
+                          </td>
+
+                          <td>
+                            {plan?.name ??
+                              "Belum ada plan"}
+                          </td>
+
+                          <td>
+                            {
+                              employeeCount
+                            }{" "}
+                            /{" "}
+                            {employeeLimit ??
+                              "∞"}
+                          </td>
+
+                          <td>
+                            <Badge
+                              tone={statusTone(
+                                subscriptionStatus
+                              )}
+                            >
+                              {statusLabel(
+                                subscriptionStatus
+                              )}
+                            </Badge>
+                          </td>
+
+                          <td>
+                            <Link
+                              href={`/platform/companies/${company.id}`}
+                              className="btn"
+                            >
+                              Manage
+                            </Link>
+                          </td>
+                        </tr>
                       );
-
-                    const plan = normalizePlan(
-                      subscription?.plans ?? null
-                    );
-
-                    const employeeCount =
-                      employeeCountByCompany.get(
-                        company.id
-                      ) ?? 0;
-
-                    const employeeLimit =
-                      plan?.employee_limit ?? null;
-
-                    const subscriptionStatus =
-                      subscription?.status ??
-                      company.status ??
-                      "unknown";
-
-                    return (
-                      <tr key={company.id}>
-                        <td>
-                          <strong>
-                            {company.name}
-                          </strong>
-
-                          <div className="muted small">
-                            {company.slug}
-                          </div>
-                        </td>
-
-                        <td>
-                          {plan?.name ??
-                            "Belum ada plan"}
-                        </td>
-
-                        <td>
-                          {employeeCount} /{" "}
-                          {employeeLimit ?? "∞"}
-                        </td>
-
-                        <td>
-                          <Badge
-                            tone={statusTone(
-                              subscriptionStatus
-                            )}
-                          >
-                            {statusLabel(
-                              subscriptionStatus
-                            )}
-                          </Badge>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                    }
+                  )}
                 </tbody>
               </table>
             </div>
@@ -279,8 +333,9 @@ export default async function CompaniesPage() {
             <CreateCompanyForm />
 
             <ApiHint>
-              Hanya platform_admin yang bisa memakai
-              endpoint tenant creation.
+              Hanya platform_admin yang
+              bisa memakai endpoint tenant
+              creation.
             </ApiHint>
           </div>
         </Card>
