@@ -1,0 +1,3 @@
+"use client";
+import { Button } from "@/components/ui";
+export default function Error({error,reset}:{error:Error&{digest?:string};reset:()=>void}){return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",padding:20}}><div className="card cardpad" style={{width:"min(460px,100%)"}}><span className="badge danger">Something went wrong</span><h1 style={{fontSize:25,letterSpacing:"-.04em"}}>Halaman ini belum bisa dibuka.</h1><p className="small muted" style={{lineHeight:1.7}}>{error.message||"Terjadi kesalahan yang tidak terduga."}</p><Button variant="primary" onClick={reset}>Coba lagi</Button></div></main>}

@@ -1,0 +1,1 @@
+export default function Loading(){return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",background:"var(--bg)"}}><div className="card cardpad" style={{width:280,textAlign:"center"}}><div className="brandmark" style={{margin:"0 auto 12px"}}>N</div><strong>Memuat workspace…</strong><p className="small muted">Menyiapkan data yang Anda butuhkan.</p></div></main>}

@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound(){return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",padding:20}}><div className="card cardpad" style={{width:"min(440px,100%)",textAlign:"center"}}><div className="brandmark" style={{margin:"0 auto 14px"}}>N</div><h1 style={{fontSize:28,marginBottom:8}}>Halaman tidak ditemukan.</h1><p className="small muted">URL mungkin berubah atau Anda tidak punya akses ke area ini.</p><Link className="btn primary" href="/">Kembali</Link></div></main>}

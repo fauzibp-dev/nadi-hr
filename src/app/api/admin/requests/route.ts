@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server";
+import { requireApiProfile } from "@/lib/api-auth";
+export async function GET(){const c=await requireApiProfile(["owner","hr","manager","supervisor"]);if("error" in c)return NextResponse.json({error:c.error},{status:c.status});const {data,error}=await c.supabase.from("requests").select("id,request_type,status,work_date,starts_at,ends_at,reason,current_step,submitted_at,employees(full_name,job_title)").eq("status","pending").order("submitted_at",{ascending:true}).limit(100);return error?NextResponse.json({error:error.message},{status:400}):NextResponse.json({items:data});}
