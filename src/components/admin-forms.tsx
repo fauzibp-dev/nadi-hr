@@ -2,6 +2,11 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Button, Field, Badge } from "@/components/ui";
 
+type StatusState = {
+  kind: "idle" | "busy" | "ok" | "error";
+  text: string;
+};
+
 function Status({state}:{state:{kind:"idle"|"busy"|"ok"|"error";text:string}}){if(state.kind==="idle")return null;return <div className={`callout ${state.kind==="error"?"warning":""}`} style={{marginTop:12}}>{state.kind==="busy"?"Memproses…":state.text}</div>}
 async function jsonPost(url:string,payload:unknown){const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Request gagal");return d;}
 
