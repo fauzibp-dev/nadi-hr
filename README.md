@@ -69,3 +69,5 @@ npm start
 ## Branding
 
 `Nadi` is only a working product name. Change the brand in `src/components/app-shell.tsx`, `src/app/page.tsx`, metadata in `src/app/layout.tsx`, and CSS variables in `src/app/globals.css`.
+
+<!-- trigger supabase deployment -->
