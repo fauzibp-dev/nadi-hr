@@ -51,9 +51,17 @@ create table public.saved_reports (
 );
 
 create or replace view public.v_attendance_monthly with (security_invoker = true) as
-select company_id, employee_id, date_trunc('month',work_date)::date month,
- count(*) filter(where status in ('present','late')) present_days,
- count(*) filter(where status='late') late_days,
- count(*) filter(where status='absent') absent_days,
- sum(worked_minutes) worked_minutes, sum(overtime_minutes) overtime_minutes
-from public.attendance_daily group by company_id,employee_id,date_trunc('month',work_date);
+select
+  company_id,
+  employee_id,
+  date_trunc('month', work_date)::date as month_start,
+  count(*) filter (where status in ('present', 'late')) as present_days,
+  count(*) filter (where status = 'late') as late_days,
+  count(*) filter (where status = 'absent') as absent_days,
+  sum(worked_minutes) as worked_minutes,
+  sum(overtime_minutes) as overtime_minutes
+from public.attendance_daily
+group by
+  company_id,
+  employee_id,
+  date_trunc('month', work_date);
